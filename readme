@@ -1,0 +1,25 @@
+# Create Terraform state resources
+UniqueSuffix=XXXX
+Location=swedencentral
+ResourceGroupName=rg-prod-sc-tfstateXXXX
+StorageAccountName=stprodsctfstateXXXX
+
+#Create resource group
+az group create --location $Location --name $ResourceGroupName
+
+#Create Storage account
+az storage account create --name $StorageAccountName --resource-group $ResourceGroupName --location $Location --sku Standard_LRS --kind StorageV2 --allow-blob-public-access false
+
+#Create Containers for TFState
+az storage container create -n tfstate-governance --account-name $StorageAccountName
+az storage container create -n tfstate-core --account-name $StorageAccountName
+az storage container create -n tfstate-vm --account-name $StorageAccountName
+
+#Initiate Terraform
+Terraform Init
+
+#Terraform Plan
+terraform plan -var-file variables/common.tfvars -var-file variables/dev.tfvars
+
+#Terraform Apply
+terraform plan -var-file variables/common.tfvars -var-file variables/dev.tfvars
